@@ -1,0 +1,49 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres:18-alpine
+    restart: always  # restarts if the container crashes
+    environment:
+      # uses .env var or defaults to ny_taxi_user/password
+      POSTGRES_USER: ${POSTGRES_USER:-ny_taxi_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ny_taxi_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ny_taxi}
+    ports:
+      - '5433:5432'
+    volumes:
+      - ny_taxi_postgres_data:/var/lib/postgresql/data
+    networks:
+      - taxi_network
+    healthcheck: # ensures pgadmin doesn't try to connect before db is ready
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ny_taxi_user} -d ${POSTGRES_DB:-ny_taxi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False' 
+    ports:
+      - "8080:80"
+    volumes:
+      - ny_taxi_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - taxi_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  taxi_network:
+    driver: bridge
+
+volumes:
+  ny_taxi_postgres_data:
+    name: ny_taxi_postgres_data
+  ny_taxi_pgadmin_data:
+    name: ny_taxi_pgadmin_data
