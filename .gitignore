@@ -1,0 +1,20 @@
+# Environments & Packages
+.venv/
+__pycache__/
+.uv/
+
+# Data & Notebooks
+data/
+notebooks/.ipynb_checkpoints/
+*.csv
+*.parquet
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+auth.json
+
+# Credentials
+.env
