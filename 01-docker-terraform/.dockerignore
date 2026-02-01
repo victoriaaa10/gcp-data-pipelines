@@ -4,5 +4,4 @@ __pycache__/
 .terraform/
 data/
 *.env
-Dockerfile
 docker-compose.yaml
