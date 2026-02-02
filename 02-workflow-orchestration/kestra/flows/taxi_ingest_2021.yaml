@@ -1,0 +1,45 @@
+id: taxi_ingest_2021
+namespace: zoomcamp
+
+inputs:
+  - id: taxi
+    type: SELECT
+    displayName: Select Taxi Type
+    values: ["green", "yellow"]
+    defaults: "green"
+
+  - id: month
+    type: SELECT
+    displayName: Select Month
+    values: ["01", "02", "03", "04", "05", "06", "07"]
+    defaults: "01"
+
+variables:
+  file: "{{ inputs.taxi }}_tripdata_2021-{{ inputs.month }}.parquet"
+  gcs_file: "gs://{{ kv('GCP_BUCKET_NAME') }}/{{ vars.file }}"
+
+tasks:
+  - id: download_data
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    commands:
+      - wget -q https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{{ inputs.taxi }}/{{ vars.file }}
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{ workingDir }}/{{ vars.file }}"
+    to: "{{ vars.gcs_file }}"
+    projectId: "{{ kv('GCP_PROJECT_ID') }}"
+
+  - id: load_to_bigquery
+    type: io.kestra.plugin.gcp.bigquery.Load
+    from: "{{ vars.gcs_file }}"
+    destinationTable: "{{ kv('GCP_PROJECT_ID') }}.{{ kv('GCP_DATASET') }}.{{ inputs.taxi }}_tripdata_2021_{{ inputs.month }}"
+    format: PARQUET
+    projectId: "{{ kv('GCP_PROJECT_ID') }}"
+
+triggers:
+  - id: schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 1 * *"

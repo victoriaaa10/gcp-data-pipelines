@@ -1,0 +1,37 @@
+id: taxi_ingest_2019_to_2021
+namespace: zoomcamp
+
+inputs:
+  - id: taxi
+    type: SELECT
+    values: ["green", "yellow"]
+    defaults: "yellow"
+
+  - id: year
+    type: SELECT
+    values: ["2019", "2020", "2021"]
+    defaults: "2019"
+
+  - id: month
+    type: SELECT
+    values: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+    defaults: "01"
+
+tasks:
+  - id: download_data
+    type: io.kestra.plugin.core.http.Download
+    uri: "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{{inputs.taxi}}/{{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.{{inputs.year == '2021' ? 'parquet' : 'csv.gz'}}"
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{outputs.download_data.uri}}"
+    to: "gs://{{kv('GCP_BUCKET_NAME')}}/{{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.{{inputs.year == '2021' ? 'parquet' : 'csv.gz'}}"
+    projectId: "{{kv('GCP_PROJECT_ID')}}"
+
+  - id: check_size
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    commands:
+      - wget -q -L https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2020-12.csv.gz
+      - gunzip -l yellow_tripdata_2020-12.csv.gz
