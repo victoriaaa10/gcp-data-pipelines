@@ -7,25 +7,28 @@ terraform {
   }
 }
 
+# provider configuration
 provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
 }
 
-# 🥉 BRONZE: Raw Data (GCS Bucket)
+# --------------------------------------------------------------------------------
+# 🥉 BRONZE LAYER: Raw Data (GCS Bucket)
+# --------------------------------------------------------------------------------
 resource "google_storage_bucket" "bronze_bucket" {
   name          = "${var.project_id}-bronze-lake"
   location      = var.region
-  force_destroy = true # allows deletion with data inside
+  force_destroy = true # allows deletion even if bucket contains data
 
   storage_class = "STANDARD"
   uniform_bucket_level_access = true
 
-  # auto-clean failed uploads
+  # lifecycle rule to clean up failed/interrupted uploads
   lifecycle_rule {
     condition {
-      age = 1
+      age = 1 # days
     }
     action {
       type = "AbortIncompleteMultipartUpload"
@@ -38,9 +41,11 @@ resource "google_storage_bucket" "bronze_bucket" {
   }
 }
 
-# 🥈 SILVER: Cleaned Data (BigQuery)
+# --------------------------------------------------------------------------------
+# 🥈 SILVER LAYER: Cleaned Data (BigQuery Dataset)
+# --------------------------------------------------------------------------------
 resource "google_bigquery_dataset" "silver_dataset" {
-  dataset_id  = "trips_data_silver"
+  dataset_id  = "${var.dataset_prefix}_silver"
   project     = var.project_id
   location    = var.region
   description = "Silver Layer: Cleaned and normalized taxi trip data."
@@ -51,9 +56,11 @@ resource "google_bigquery_dataset" "silver_dataset" {
   }
 }
 
-# 🥇 GOLD: Analytics Data (BigQuery)
+# --------------------------------------------------------------------------------
+# 🥇 GOLD LAYER: Analytics Data (BigQuery Dataset)
+# --------------------------------------------------------------------------------
 resource "google_bigquery_dataset" "gold_dataset" {
-  dataset_id  = "trips_data_gold"
+  dataset_id  = "${var.dataset_prefix}_gold"
   project     = var.project_id
   location    = var.region
   description = "Gold Layer: Aggregated and reporting-ready business metrics."
