@@ -15,8 +15,13 @@ variable "zone" {
   default     = "us-central1-a"
 }
 
-variable "dataset_prefix" {
-  description = "Prefix for BigQuery datasets (e.g., taxi_trips)"
+variable "prefix" {
+  description = "Prefix for BigQuery datasets"
   type        = string
   default     = "trips_data"
+}
+
+variable "bucket_name" {
+  description = "GCS Bucket name"
+  type        = string
 }
