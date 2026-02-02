@@ -24,3 +24,8 @@ auth.json
 
 # System Files
 .DS_Store
+
+# Kestra
+bin/
+.kestra/
+storage/

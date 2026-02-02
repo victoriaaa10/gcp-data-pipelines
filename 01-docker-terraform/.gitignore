@@ -1,0 +1,19 @@
+# Local Data 
+data/
+*.csv
+*.parquet
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# Docker and Environment
+.env
+db_data/
+
+# OS specific
+.DS_Store
+Thumbs.db
