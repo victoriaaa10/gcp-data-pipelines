@@ -35,3 +35,7 @@ tasks:
     commands:
       - wget -q -L https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2020-12.csv.gz
       - gunzip -l yellow_tripdata_2020-12.csv.gz
+
+  - id: check_rendered_variable
+    type: io.kestra.plugin.core.log.Log
+    message: "The rendered file value is: {{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.{{inputs.year == '2021' ? 'parquet' : 'csv.gz'}}"
