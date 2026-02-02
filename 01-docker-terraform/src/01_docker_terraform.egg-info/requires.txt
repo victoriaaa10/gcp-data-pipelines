@@ -1,0 +1,11 @@
+click>=8.3.1
+db-dtypes>=1.4.4
+google-cloud-bigquery>=3.40.0
+google-cloud-bigquery-storage>=2.36.0
+google-cloud-storage>=3.8.0
+pandas>=3.0.0
+psycopg2-binary>=2.9.11
+pyarrow>=23.0.0
+python-dotenv>=1.2.1
+sqlalchemy>=2.0.46
+tqdm>=4.67.2

@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/__init__.py
+src/01_docker_terraform.egg-info/PKG-INFO
+src/01_docker_terraform.egg-info/SOURCES.txt
+src/01_docker_terraform.egg-info/dependency_links.txt
+src/01_docker_terraform.egg-info/requires.txt
+src/01_docker_terraform.egg-info/top_level.txt
+src/ingestion/__init__.py
+src/ingestion/extract.py
+src/ingestion/load.py
