@@ -1,0 +1,22 @@
+variable "project_id" {
+  description = "GCP Project ID"
+  type        = string
+}
+
+variable "region" {
+  description = "GCP region"
+  type        = string
+  default     = "us-central1"
+}
+
+variable "zone" {
+  description = "GCP zone"
+  type        = string
+  default     = "us-central1-a"
+}
+
+variable "dataset_prefix" {
+  description = "Prefix for BigQuery datasets (e.g., taxi_trips)"
+  type        = string
+  default     = "trips_data"
+}
