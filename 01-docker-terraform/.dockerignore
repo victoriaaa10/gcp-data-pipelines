@@ -1,7 +1,28 @@
+# Version Control
 .git/
+
+# Environments & Dependencies
 .venv/
+.uv/
 __pycache__/
-.terraform/
+*.pyc
+
+# Local Data 
 data/
-*.env
-docker-compose.yaml
+*.csv
+*.parquet
+
+# Terraform 
+.terraform/
+*.tfstate*
+*.tfvars
+
+# Secrets & Config
+.env
+auth.json
+*-credentials.json
+
+# Documentation
+README.md
+notebooks/
+.ipynb_checkpoints/
