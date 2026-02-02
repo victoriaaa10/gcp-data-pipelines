@@ -49,6 +49,7 @@ resource "google_bigquery_dataset" "silver_dataset" {
   project     = var.project_id
   location    = var.region
   description = "Silver Layer: Cleaned and normalized taxi trip data."
+  delete_contents_on_destroy = true
 
   labels = {
     env  = "dev"
@@ -64,6 +65,7 @@ resource "google_bigquery_dataset" "gold_dataset" {
   project     = var.project_id
   location    = var.region
   description = "Gold Layer: Aggregated and reporting-ready business metrics."
+  delete_contents_on_destroy = true
 
   labels = {
     env  = "dev"
