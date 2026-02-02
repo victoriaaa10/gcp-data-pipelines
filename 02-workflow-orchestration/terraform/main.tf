@@ -18,11 +18,11 @@ provider "google" {
 # 🥉 BRONZE LAYER: Raw Data (GCS Bucket)
 # --------------------------------------------------------------------------------
 resource "google_storage_bucket" "bronze_bucket" {
-  name          = "${var.project_id}-bronze-lake"
+  name          = "${var.bucket_name}-bronze"
   location      = var.region
   force_destroy = true # allows deletion even if bucket contains data
 
-  storage_class = "STANDARD"
+  storage_class               = "STANDARD"
   uniform_bucket_level_access = true
 
   # lifecycle rule to clean up failed/interrupted uploads
@@ -45,10 +45,10 @@ resource "google_storage_bucket" "bronze_bucket" {
 # 🥈 SILVER LAYER: Cleaned Data (BigQuery Dataset)
 # --------------------------------------------------------------------------------
 resource "google_bigquery_dataset" "silver_dataset" {
-  dataset_id  = "${var.dataset_prefix}_silver"
-  project     = var.project_id
-  location    = var.region
-  description = "Silver Layer: Cleaned and normalized taxi trip data."
+  dataset_id                 = "${var.prefix}_silver"
+  project                    = var.project_id
+  location                   = var.region
+  description                = "Silver Layer: Cleaned and normalized taxi trip data."
   delete_contents_on_destroy = true
 
   labels = {
@@ -61,10 +61,10 @@ resource "google_bigquery_dataset" "silver_dataset" {
 # 🥇 GOLD LAYER: Analytics Data (BigQuery Dataset)
 # --------------------------------------------------------------------------------
 resource "google_bigquery_dataset" "gold_dataset" {
-  dataset_id  = "${var.dataset_prefix}_gold"
-  project     = var.project_id
-  location    = var.region
-  description = "Gold Layer: Aggregated and reporting-ready business metrics."
+  dataset_id                 = "${var.prefix}_gold"
+  project                    = var.project_id
+  location                   = var.region
+  description                = "Gold Layer: Aggregated and reporting-ready business metrics."
   delete_contents_on_destroy = true
 
   labels = {

@@ -1,0 +1,15 @@
+id: setup_verification
+namespace: zoomcamp
+
+tasks:
+  - id: hello
+    type: io.kestra.plugin.core.log.Log
+    message: Hello World! 🚀 This is a test.
+
+  - id: test_conn
+    type: io.kestra.plugin.jdbc.postgresql.Query
+    url: jdbc:postgresql://db:5432/ny_taxi  
+    username: "{{ kv('POSTGRES_USER') }}"   
+    password: "{{ kv('POSTGRES_PASSWORD') }}" 
+    sql: "SELECT 'Postgres is connected.' as status;"
+    fetchType: FETCH_ONE
