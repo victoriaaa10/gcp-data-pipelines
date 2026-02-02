@@ -16,7 +16,7 @@ variable "zone" {
 }
 
 variable "dataset_prefix" {
-  description = "Prefix for BigQuery datasets (e.g., taxi_trips)"
+  description = "Prefix for BigQuery datasets"
   type        = string
   default     = "trips_data"
 }
