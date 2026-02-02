@@ -1,10 +1,9 @@
 services:
   db:
     container_name: postgres
-    image: postgres:18-alpine
-    restart: always  # restarts if the container crashes
+    image: postgres:18-alpine 
+    restart: always
     environment:
-      # uses .env var or defaults to ny_taxi_user/password
       POSTGRES_USER: ${POSTGRES_USER:-ny_taxi_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ny_taxi_password}
       POSTGRES_DB: ${POSTGRES_DB:-ny_taxi}
@@ -14,7 +13,7 @@ services:
       - ny_taxi_postgres_data:/var/lib/postgresql/data
     networks:
       - taxi_network
-    healthcheck: # ensures pgadmin doesn't try to connect before db is ready
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ny_taxi_user} -d ${POSTGRES_DB:-ny_taxi}"]
       interval: 10s
       timeout: 5s
@@ -37,6 +36,27 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  ingest:
+    container_name: taxi_ingest_script
+    build: .
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-ny_taxi_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ny_taxi_password}
+      - POSTGRES_DB=${POSTGRES_DB:-ny_taxi}
+      - POSTGRES_HOST=db       
+      - POSTGRES_PORT=5432     # internal port within the network
+    volumes:
+      - ./data:/app/data       # maps local data folder
+    networks:
+      - taxi_network
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      --taxi_path data/green_tripdata_2025-11.parquet
+      --zones_path data/taxi_zone_lookup.csv
+      --table_name green_taxi_trips
 
 networks:
   taxi_network:
