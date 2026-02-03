@@ -28,14 +28,53 @@ tasks:
     to: "gs://{{kv('GCP_BUCKET_NAME')}}/{{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.{{inputs.year == '2021' ? 'parquet' : 'csv.gz'}}"
     projectId: "{{kv('GCP_PROJECT_ID')}}"
 
-  - id: check_size
+  - id: count_rows_and_size
     type: io.kestra.plugin.scripts.shell.Commands
     taskRunner:
       type: io.kestra.plugin.core.runner.Process
+    inputFiles:
+      data_file: "{{outputs.download_data.uri}}"
     commands:
-      - wget -q -L https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2020-12.csv.gz
-      - gunzip -l yellow_tripdata_2020-12.csv.gz
+      - |
+        if [ "{{inputs.year}}" != "2021" ]; then
+          LINE_COUNT=$(gunzip -c data_file | wc -l)
+          echo "Total Records (minus header): $((LINE_COUNT - 1))"
+          echo "Uncompressed info:"
+          gunzip -l data_file
+        else
+          echo "Parquet file detected for 2021. Row counting skipped in shell."
+        fi
 
-  - id: check_rendered_variable
-    type: io.kestra.plugin.core.log.Log
-    message: "The rendered file value is: {{inputs.taxi}}_tripdata_{{inputs.year}}-{{inputs.month}}.{{inputs.year == '2021' ? 'parquet' : 'csv.gz'}}"
+  - id: bq_load_logic
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ inputs.year == '2021' }}"
+    then:
+      - id: bq_load_parquet
+        type: io.kestra.plugin.gcp.bigquery.Load
+        from: "{{outputs.download_data.uri}}"
+        destinationTable: "{{kv('GCP_PROJECT_ID')}}.trips_data_silver.{{inputs.taxi}}_tripdata_{{inputs.year}}_{{inputs.month}}"
+        format: PARQUET
+        autodetect: true
+        writeDisposition: WRITE_TRUNCATE
+    else:
+      - id: bq_load_csv
+        type: io.kestra.plugin.gcp.bigquery.Load
+        from: "{{outputs.download_data.uri}}"
+        destinationTable: "{{kv('GCP_PROJECT_ID')}}.trips_data_silver.{{inputs.taxi}}_tripdata_{{inputs.year}}_{{inputs.month}}"
+        format: CSV
+        autodetect: true
+        writeDisposition: WRITE_TRUNCATE
+        csvOptions:
+          fieldDelimiter: ","
+          allowQuotedNewLines: true
+          skipLeadingRows: 1
+
+  - id: delete_temp_files
+    type: io.kestra.plugin.core.storage.Delete
+    uri: "{{ outputs.download_data.uri }}"
+
+triggers:
+  - id: schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 1 * *"
+    timezone: America/New_York
