@@ -1,25 +1,19 @@
 # --- Data Files ---
-# Ignore the raw taxi data downloads
 *.parquet
 *.csv
 *.gz
 
 # --- Module 3 Specifics ---
-# Ignore the credentials you're avoiding with ADC
 gcs.json
 .env
 
 # --- Terraform ---
-# Ignore local environment and state, but KEEP .tf files
 .terraform/
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
-
-# IMPORTANT: Ignore the values file (The "Secret" file)
 terraform.tfvars
 
 # --- Python ---
-# Ignore the uv virtual environment
 .venv/
 __pycache__/
