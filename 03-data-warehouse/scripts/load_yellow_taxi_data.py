@@ -51,11 +51,13 @@ else:
     client = storage.Client(project=PROJECT_ID)
 
 # --- Script Logic ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # gets the location of the script DOWNLOAD_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "data")) # moves up and into /data
+# get the absolute path of the script itself 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# define DOWNLOAD_DIR by going up one level (..) and into /data 
+DOWNLOAD_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "data"))
 
 BASE_URL = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2024-"
 MONTHS = [f"{i:02d}" for i in range(1, 7)]
-DOWNLOAD_DIR = "."
 CHUNK_SIZE = 8 * 1024 * 1024
 
 # create the data directory if it doesn't exist

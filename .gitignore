@@ -10,6 +10,8 @@ data/
 */.ipynb_checkpoints/
 *.csv
 *.parquet
+*.duckdb
+*.duckdb.wal
 
 # Terraform
 .terraform/
