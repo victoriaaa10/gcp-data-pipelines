@@ -1,7 +1,7 @@
 # --- dbt specific ---
-taxi_rides_ny/target/
-taxi_rides_ny/dbt_packages/
-taxi_rides_ny/logs/
+**/logs/
+**/target/
+**/dbt_packages/
 
 # --- Terraform ---
 terraform/.terraform/
