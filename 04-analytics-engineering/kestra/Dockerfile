@@ -10,14 +10,14 @@ COPY --from=uv_bin /uv /uvx /bin/
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files to the container
+# Copy dependency files 
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies into the system site-packages 
+# Install dependencies using uv
 RUN uv pip install --system --no-cache .
 
-# Copy the application code to the container 
+# Copy the scripts to the container
 COPY kestra/scripts/ /app/scripts/
 
-# Set the default command to run the ingestion script
+# Default command (can be overridden by Kestra)
 CMD ["python", "scripts/ingest_web_to_gcs.py"]

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Database (PostgreSQL)
   postgres:
@@ -11,69 +9,92 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kestra_password}
       POSTGRES_DB: ${POSTGRES_DB:-kestra}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kestra"]
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - kestra-network
 
-  # 2. Kestra Server (Web UI)
+  # Kestra Server (Web UI)
   kestra:
     image: kestra/kestra:latest
     container_name: kestra-server
+    user: "root"
     command: server standalone
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8080:8080"
+    volumes:
+      - kestra-storage:/app/storage
     env_file: .env
     environment:
       KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-kestra}
+            driverClassName: org.postgresql.Driver
+            username: ${POSTGRES_USER:-kestra}
+            password: ${POSTGRES_PASSWORD:-kestra_password}
         kestra:
           repository:
             type: postgres
-            postgres:
-              url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-kestra}
-              username: ${POSTGRES_USER:-kestra}
-              password: ${POSTGRES_PASSWORD:-kestra_password}
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
     networks:
       - kestra-network
 
   # Kestra Worker (The Orchestrator)
   kestra-worker:
-    image: kestra/kestra:latest  
+    image: kestra/kestra:latest
     container_name: kestra-worker
+    user: "root"
     command: worker
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      # CRITICAL: Allows the Kestra Worker to start NEW containers (Task Runners)
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
+      - kestra-storage:/app/storage
     env_file: .env
     environment:
       KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-kestra}
+            driverClassName: org.postgresql.Driver
+            username: ${POSTGRES_USER:-kestra}
+            password: ${POSTGRES_PASSWORD:-kestra_password}
         kestra:
           repository:
             type: postgres
-            postgres:
-              url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-kestra}
-              username: ${POSTGRES_USER:-kestra}
-              password: ${POSTGRES_PASSWORD:-kestra_password}
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
     networks:
       - kestra-network
 
-  # Custom Python Image
+  # Custom Python Image (for building only)
   nytaxi-ingest:
     build:
       context: ..
       dockerfile: kestra/Dockerfile
     image: nytaxi-ingest:latest
-    profiles: ["build-only"] 
+    profiles: ["build-only"]
 
 networks:
   kestra-network:
     driver: bridge
+
+volumes:
+  kestra-storage:
