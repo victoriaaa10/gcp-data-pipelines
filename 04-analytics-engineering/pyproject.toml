@@ -1,0 +1,17 @@
+[project]
+name = "04-analytics-engineering"
+version = "0.1.0"
+description = "04-analytics-engineering"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.3.1",
+    "dbt-bigquery>=1.11.1",
+    "dbt-core>=1.11.7",
+    "fastparquet>=2025.12.0",
+    "google-cloud-storage>=3.1.1",
+    "pandas>=3.0.1",
+    "pyarrow>=23.0.1",
+    "python-dotenv>=1.2.2",
+    "requests>=2.32.5",
+]

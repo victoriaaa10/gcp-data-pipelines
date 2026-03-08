@@ -1,26 +1,48 @@
-# --- dbt specific ---
+# ==========================================
+# 04-ANALYTICS-ENGINEERING .gitignore
+# ==========================================
+
+# --- dbt ---
 **/logs/
 **/target/
 **/dbt_packages/
+**/dbt_modules/
+**/graph.gpickle
+**/run_results.json
 
 # --- Terraform ---
-terraform/.terraform/
-terraform/*.tfvars
-terraform/*.tfvars.json
-terraform/*.tfstate
-terraform/*.tfstate.*
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+**/terraform.tfvars.json
+**/*.tfplan
 terraform/crash.log
+.terraform.lock.hcl
 
-# --- uv / Python specific ---
+# --- uv / Python ---
 .venv/
 __pycache__/
 *.py[cod]
+*$py.class
 .python-version
+.ipynb_checkpoints/
 
 # --- Security / Credentials ---
-*.json
-profiles.yml
-.env
+**/.env
+**/.env.*
+**/profiles.yml
+**/*.json
+!**/pyproject.toml 
+!**/package.json
 
-# --- OS specific ---
+# --- Kestra / Orchestration ---
+kestra/storage/
+kestra/db/
+bin/
+
+# --- OS ---
 .DS_Store
+Thumbs.db
+.fseventsd
+.Spotlight-V100

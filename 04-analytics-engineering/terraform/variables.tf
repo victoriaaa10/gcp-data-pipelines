@@ -27,3 +27,8 @@ variable "gcs_bucket_name" {
   description = "Storage Bucket Name (Must be globally unique)"
   default     = "nytaxi-bucket-project-id-redacted"
 }
+
+variable "gcs_storage_class" {
+  description = "Bucket Storage Class"
+  default     = "STANDARD"
+}
