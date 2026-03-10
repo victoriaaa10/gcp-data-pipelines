@@ -28,6 +28,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - kestra-storage:/app/storage
     env_file: .env
     environment:
