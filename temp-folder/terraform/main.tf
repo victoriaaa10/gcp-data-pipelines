@@ -12,18 +12,21 @@ provider "google" {
   region  = var.region
 }
 
+# Bronze Layer: Raw Dataset 
 resource "google_bigquery_dataset" "raw_dataset" {
   dataset_id                 = var.bq_dataset_raw
   location                   = var.location
   delete_contents_on_destroy = true 
 }
 
+# Silver/Gold Layer: dbt Transformations Dataset 
 resource "google_bigquery_dataset" "dbt_dataset" {
   dataset_id                 = var.bq_dataset_dbt
   location                   = var.location
   delete_contents_on_destroy = true
 }
 
+# GCS Bucket for Data Lake
 resource "google_storage_bucket" "data_lake" {
   name                        = var.gcs_bucket_name
   location                    = var.location

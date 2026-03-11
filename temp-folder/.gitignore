@@ -29,21 +29,16 @@ __pycache__/
 .ipynb_checkpoints/
 
 # --- Security / Credentials ---
-# Block all .env files and the master JSON key
-.env
-.env.*
-google_credentials.json
+**/.env
+**/.env.*
 **/profiles.yml
-
-# Block all JSON except specific project metadata
 **/*.json
 !**/pyproject.toml 
 !**/package.json
-!**/dbt_project.json
 
 # --- Kestra / Orchestration ---
 kestra/storage/
-kestra/postgres_data/
+kestra/db/
 bin/
 
 # --- OS ---
