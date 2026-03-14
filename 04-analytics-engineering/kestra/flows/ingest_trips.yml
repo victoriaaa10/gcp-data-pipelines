@@ -1,0 +1,74 @@
+id: ingest_trips
+namespace: zoomcamp
+description: |
+  EL pipeline: 
+  1. Python script extracts GitHub CSVs, cleans schema, and uploads Parquet to GCS.
+  2. Kestra native plugin loads GCS Parquet into BigQuery raw tables.
+concurrency:
+  limit: 1
+
+inputs:
+  - id: service
+    type: SELECT
+    defaults: yellow
+    values: [yellow, green, fhv]
+  - id: year
+    type: STRING
+    defaults: "2019"
+  - id: month
+    type: STRING
+    defaults: "01"
+
+tasks:
+  - id: ingest_to_gcs
+    type: io.kestra.plugin.scripts.python.Commands
+    retry:
+      type: exponential
+      maxAttempt: 3
+      interval: PT1M
+      maxInterval: PT10M
+
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      image: nytaxi-ingest:latest
+      pullPolicy: NEVER
+      host: unix:///var/run/docker.sock
+
+    inputFiles:
+      gcp-creds.json: "{{ kv('gcp_service_account_json') }}"
+
+    env:
+      GCS_BUCKET_NAME: "{{ kv('gcs_bucket_name') }}"
+      GCP_PROJECT_ID: "{{ kv('gcp_project_id') }}"
+      TAXI_SERVICE: "{{ inputs.service }}"
+      TAXI_YEAR: "{{ (trigger.date | date('yyyy')) ?? inputs.year }}"
+      TAXI_MONTH: "{{ (trigger.date | date('MM')) ?? inputs.month }}"
+      GOOGLE_APPLICATION_CREDENTIALS: "/app/gcp-creds.json"
+
+    commands:
+      - cp gcp-creds.json /app/gcp-creds.json
+      - python /app/scripts/ingest_web_to_gcs.py --service $TAXI_SERVICE --year $TAXI_YEAR --month $TAXI_MONTH
+
+  - id: gcs_to_bq_raw
+    type: io.kestra.plugin.gcp.bigquery.LoadFromGcs
+    retry:
+      type: exponential
+      maxAttempt: 3
+      interval: PT30S
+      maxInterval: PT5M 
+    from: 
+      - "gs://{{ kv('gcs_bucket_name') }}/raw/{{ inputs.service }}/{{ (trigger.date | date('yyyy')) ?? inputs.year }}/{{ inputs.service }}_tripdata_{{ (trigger.date | date('yyyy')) ?? inputs.year }}-{{ (trigger.date | date('MM')) ?? inputs.month }}.parquet"
+    destinationTable: "{{ kv('gcp_project_id') }}.{{ kv('gcp_dataset_raw') }}.{{ inputs.service }}_tripdata"
+    format: PARQUET
+    writeDisposition: WRITE_APPEND
+    serviceAccount: "{{ kv('gcp_service_account_json') }}"
+    projectId: "{{ kv('gcp_project_id') }}"
+
+  - id: log_completion
+    type: io.kestra.plugin.core.log.Log
+    message: "Successfully loaded {{ inputs.service }} {{ (trigger.date | date('yyyy')) ?? inputs.year }}-{{ (trigger.date | date('MM')) ?? inputs.month }} into BigQuery."
+
+triggers:
+  - id: backfill
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 0 1 * *"
