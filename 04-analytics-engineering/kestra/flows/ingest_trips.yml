@@ -55,12 +55,12 @@ tasks:
       type: exponential
       maxAttempt: 3
       interval: PT30S
-      maxInterval: PT5M 
-    from: 
+      maxInterval: PT5M
+    from:
       - "gs://{{ kv('gcs_bucket_name') }}/raw/{{ inputs.service }}/{{ (trigger.date | date('yyyy')) ?? inputs.year }}/{{ inputs.service }}_tripdata_{{ (trigger.date | date('yyyy')) ?? inputs.year }}-{{ (trigger.date | date('MM')) ?? inputs.month }}.parquet"
     destinationTable: "{{ kv('gcp_project_id') }}.{{ kv('gcp_dataset_raw') }}.{{ inputs.service }}_tripdata"
     format: PARQUET
-    writeDisposition: WRITE_APPEND
+    writeDisposition: WRITE_TRUNCATE
     serviceAccount: "{{ kv('gcp_service_account_json') }}"
     projectId: "{{ kv('gcp_project_id') }}"
 

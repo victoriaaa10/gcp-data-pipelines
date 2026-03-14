@@ -23,7 +23,9 @@ def ingest_data(service, year, month):
         'passenger_count',
         'ratecodeid', 'rate_code_id',
         'payment_type',
-        'trip_type',  
+        'trip_type',        
+        'pulocationid',    
+        'dolocationid',     
     ]
 
     buffer = BytesIO()
