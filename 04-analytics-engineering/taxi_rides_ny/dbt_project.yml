@@ -1,0 +1,24 @@
+name: 'taxi_rides_ny'
+version: '1.0.0'
+profile: 'taxi_rides_ny'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+models:
+  taxi_rides_ny:
+    staging:
+      +materialized: view
+    core:
+      +materialized: table
+
