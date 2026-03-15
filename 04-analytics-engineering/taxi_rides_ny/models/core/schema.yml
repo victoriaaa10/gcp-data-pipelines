@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: dim_zones
+    description: "Location dimension table derived from the taxi_zone_lookup seed. Contains borough, zone, and service zone for every NYC taxi location ID. Boro zones are remapped to Green to align with green taxi service areas."
+    columns:
+      - name: locationid
+        description: "Primary key — unique NYC taxi location ID."
+        tests:
+          - unique
+          - not_null
+      - name: borough
+        tests:
+          - not_null
+      - name: zone
+        tests:
+          - not_null
+      - name: service_zone
+        tests:
+          - not_null
+
+  - name: fact_trips
+    description: "Central fact table combining Yellow and Green taxi trip records. Unions both datasets after staging, adds a service_type label per row, and enriches each trip with pickup and dropoff borough and zone names via dim_zones. Excludes trips with unknown boroughs."
+    columns:
+      - name: trip_id
+        description: "Surrogate key inherited from staging models."
+        tests:
+          - unique
+          - not_null
+      - name: service_type
+        description: "Indicates taxi type — 'Yellow' or 'Green'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Yellow', 'Green']
+      - name: pickup_location_id
+        tests:
+          - not_null
+      - name: dropoff_location_id
+        tests:
+          - not_null
+
+  - name: fact_fhv_trips
+    description: "Fact table for For-Hire Vehicle trips. Kept separate from fact_trips due to structural differences — no fare or payment data, dispatch base numbers instead of vendor IDs. Enriched with pickup and dropoff zone names via dim_zones. Filtered to 2019 data."
+    columns:
+      - name: trip_id
+        description: "Surrogate key generated from dispatching_base_num and pickup_datetime."
+        tests:
+          - unique
+          - not_null
+      - name: dispatching_base_num
+        tests:
+          - not_null
+      - name: pickup_location_id
+        tests:
+          - not_null
+      - name: dropoff_location_id
+        tests:
+          - not_null

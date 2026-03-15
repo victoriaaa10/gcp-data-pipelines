@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: stg_green_tripdata
+    description: "Staged Green Taxi trip records. Renamed to snake_case, explicitly typed, and filtered for valid vendor rows. Includes green-only fields: trip_type and ehail_fee."
+    columns:
+      - name: trip_id
+        description: "Surrogate key generated from vendor_id and lpep_pickup_datetime."
+        tests:
+          - unique
+          - not_null
+      - name: vendor_id
+        tests:
+          - not_null
+      - name: pickup_location_id
+        tests:
+          - not_null
+      - name: dropoff_location_id
+        tests:
+          - not_null
+
+  - name: stg_yellow_tripdata
+    description: "Staged Yellow Taxi trip records. Renamed to snake_case and explicitly typed. Structurally similar to green but uses tpep timestamps and excludes trip_type and ehail_fee."
+    columns:
+      - name: trip_id
+        description: "Surrogate key generated from vendor_id and tpep_pickup_datetime."
+        tests:
+          - unique
+          - not_null
+      - name: vendor_id
+        tests:
+          - not_null
+      - name: pickup_location_id
+        tests:
+          - not_null
+      - name: dropoff_location_id
+        tests:
+          - not_null
+
+  - name: stg_fhv_tripdata
+    description: "Staged For-Hire Vehicle trip records. Contains dispatch base numbers, location IDs, and timestamps only. Filtered to 2019 data for homework requirements."
+    columns:
+      - name: trip_id
+        description: "Surrogate key generated from dispatching_base_num and pickup_datetime."
+        tests:
+          - unique
+          - not_null
+      - name: dispatching_base_num
+        tests:
+          - not_null
+      - name: pickup_location_id
+        tests:
+          - not_null
+      - name: dropoff_location_id
+        tests:
+          - not_null
