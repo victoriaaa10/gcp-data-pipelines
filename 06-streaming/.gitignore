@@ -1,0 +1,9 @@
+# Data files
+data/
+*.parquet
+
+# Environment variables
+.env
+
+# Flink logs
+*.log
