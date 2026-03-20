@@ -1,0 +1,10 @@
+version: 2
+
+seeds:
+  - name: taxi_zone_lookup
+    description: "Static lookup table mapping NYC taxi location IDs to their corresponding borough, zone name, and service zone. Sourced from the NYC TLC and loaded via dbt seed. Used by dim_zones to enrich trip records with human-readable location names."
+    columns:
+      - name: locationid
+        tests:
+          - unique
+          - not_null

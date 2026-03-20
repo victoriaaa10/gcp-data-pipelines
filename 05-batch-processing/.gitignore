@@ -1,0 +1,30 @@
+# --- Data ---
+data/
+*.parquet
+*.csv
+*.json
+
+# --- Spark & Hadoop ---
+checkpoint/
+target/
+_SUCCESS
+.spark-staging/
+derby.log
+metastore_db/
+
+# --- Python & uv ---
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Environment & Credentials ---
+.env
+*.json
+!packages.json  
+service-account-key.json
+
+# --- macOS ---
+.DS_Store
