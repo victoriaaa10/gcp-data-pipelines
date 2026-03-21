@@ -1,7 +1,13 @@
+networks:
+  flink-network:
+    driver: bridge
+
 services:
   redpanda:
     image: redpandadata/redpanda:latest
     container_name: redpanda
+    networks:
+      - flink-network
     ports:
       - "9092:9092"
       - "9644:9644"
@@ -11,12 +17,14 @@ services:
       - --smp 1
       - --memory 1G
       - --overprovisioned
-      - --kafka-addr PLAINTEXT://0.0.0.0:9092
-      - --advertise-kafka-addr PLAINTEXT://localhost:9092
+      - --kafka-addr 0.0.0.0:9092
+      - --advertise-kafka-addr redpanda:9092
 
   jobmanager:
     build: .
     container_name: jobmanager
+    networks:
+      - flink-network
     ports:
       - "8081:8081"
     command: jobmanager
@@ -28,6 +36,8 @@ services:
   taskmanager:
     build: .
     container_name: taskmanager
+    networks:
+      - flink-network
     depends_on:
       - jobmanager
     command: taskmanager
@@ -39,6 +49,8 @@ services:
   postgres:
     image: postgres:15
     container_name: postgres
+    networks:
+      - flink-network
     ports:
       - "5432:5432"
     environment:

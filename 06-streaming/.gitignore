@@ -2,6 +2,9 @@
 data/
 *.parquet
 
+# Connector JARs
+lib/
+
 # Environment variables
 .env
 

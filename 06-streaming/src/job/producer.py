@@ -5,7 +5,7 @@ from pathlib import Path
 from time import time
 
 # ── Constants ─────────────────────────────────────────────────
-BOOTSTRAP_SERVER = "localhost:9092"
+BOOTSTRAP_SERVER = "redpanda:9092"
 TOPIC_NAME = "green-trips"
 DATA_PATH = Path("data/green_tripdata_2025-10.parquet")
 
@@ -36,6 +36,9 @@ df = pd.read_parquet(DATA_PATH, columns=COLUMNS)
 # Convert datetime columns to strings for JSON serialization
 df["lpep_pickup_datetime"] = df["lpep_pickup_datetime"].astype(str)
 df["lpep_dropoff_datetime"] = df["lpep_dropoff_datetime"].astype(str)
+
+# Convert entire DataFrame to object type and replace NaN with None
+df = df.astype(object).where(pd.notnull(df), None)
 
 # ── Send to Kafka ─────────────────────────────────────────────
 t0 = time()
